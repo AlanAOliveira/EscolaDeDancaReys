@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escola de Dança – Cadastro de Clientes</title>
+<style>
+  :root{
+    --pri:#7b2cbf; --pri2:#9d4edd; --bg:#f6f3fa; --card:#fff; --txt:#222; --mut:#777;
+    --ok:#2a9d8f; --warn:#e9a800; --bad:#d62828; --bd:#e3dcec;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--txt)}
+  header{background:linear-gradient(90deg,var(--pri),var(--pri2));color:#fff;padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  header h1{margin:0;font-size:20px;flex:1}
+  header button{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:6px 10px;cursor:pointer}
+  nav{display:flex;gap:4px;background:#fff;padding:0 16px;border-bottom:1px solid var(--bd);overflow-x:auto}
+  nav button{background:none;border:none;padding:13px 16px;font-size:15px;cursor:pointer;color:var(--mut);border-bottom:3px solid transparent;white-space:nowrap}
+  nav button.active{color:var(--pri);border-bottom-color:var(--pri);font-weight:600}
+  main{padding:20px;max-width:1300px;margin:auto}
+  .tab{display:none}.tab.active{display:block}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+  .kpi{background:var(--card);border-radius:10px;padding:16px;border-left:5px solid var(--pri);box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .kpi .v{font-size:28px;font-weight:700;margin-top:4px}
+  .kpi .l{color:var(--mut);font-size:13px}
+  .kpi.ok{border-color:var(--ok)}.kpi.warn{border-color:var(--warn)}.kpi.bad{border-color:var(--bad)}
+  .panel{background:var(--card);border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:18px}
+  .panel h3{margin:0 0 12px;font-size:16px;color:var(--pri)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media(max-width:850px){.grid2{grid-template-columns:1fr}}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;background:#fff;width:100%}
+  .toolbar input,.toolbar select{width:auto;min-width:160px}
+  .toolbar input[type=search]{flex:1;min-width:220px}
+  button.btn{background:var(--pri);color:#fff;border:none;border-radius:6px;padding:9px 16px;cursor:pointer;font-weight:600}
+  button.btn:hover{background:var(--pri2)}
+  button.sec{background:#fff;color:var(--pri);border:1px solid var(--pri)}
+  button.sec:hover{background:#f3eafc}
+  button.danger{background:var(--bad)}
+  button.ok{background:var(--ok)}
+  button.sm{padding:5px 9px;font-size:12px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:9px 8px;border-bottom:1px solid var(--bd);text-align:left;vertical-align:middle}
+  th{background:#faf7fd;color:#555;font-weight:600;position:sticky;top:0}
+  tr:hover td{background:#fcfaff}
+  .tablewrap{overflow:auto;max-height:65vh}
+  .badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:600}
+  .b-ok{background:#d8f3ef;color:#1d7268}.b-warn{background:#fff3cc;color:#8a6500}.b-bad{background:#fde0e0;color:#a11}.b-mut{background:#eee;color:#666}.b-pri{background:#efe3fb;color:var(--pri)}
+  .actions{display:flex;gap:5px;flex-wrap:wrap}
+  .empty{color:var(--mut);text-align:center;padding:24px}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-start;justify-content:center;z-index:50;overflow:auto;padding:30px 10px}
+  .modal.open{display:flex}
+  .mbox{background:#fff;border-radius:12px;max-width:860px;width:100%;padding:22px;position:relative}
+  .mbox h2{margin:0 0 14px;color:var(--pri)}
+  .close{position:absolute;right:14px;top:10px;font-size:26px;background:none;border:none;cursor:pointer;color:#999}
+  .form{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .form label{font-size:12px;color:#555;font-weight:600;display:flex;flex-direction:column;gap:4px}
+  .c2{grid-column:span 2}.c4{grid-column:span 4}
+  @media(max-width:700px){.form{grid-template-columns:1fr 1fr}.c4,.c2{grid-column:span 2}}
+  .sect{grid-column:span 4;font-weight:700;color:var(--pri);border-bottom:1px solid var(--bd);padding-bottom:4px;margin-top:6px}
+  @media(max-width:700px){.sect{grid-column:span 2}}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--bd);border-radius:16px;padding:5px 11px;cursor:pointer;font-size:13px;user-select:none;display:flex;gap:6px;align-items:center}
+  .chip input{width:auto;margin:0}
+  .chip.on{background:#efe3fb;border-color:var(--pri)}
+  .mfoot{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+  .req::after{content:" *";color:var(--bad)}
+  /* foto */
+  .avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;flex:none;background:#efe3fb;color:var(--pri);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;border:1px solid var(--bd);cursor:pointer}
+  .ncell{display:flex;align-items:center;gap:10px}
+  .photoRow{grid-column:span 4;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  @media(max-width:700px){.photoRow{grid-column:span 2}}
+  .photoBox{width:120px;height:150px;border:2px dashed var(--bd);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#faf7fd;color:var(--mut);font-size:12px;text-align:center;flex:none}
+  .photoBox img,.photoBox video{width:100%;height:100%;object-fit:cover}
+  .photoBtns{display:flex;flex-direction:column;gap:8px}
+  .pcard .pphoto{float:right;width:110px;height:140px;object-fit:cover;border:1px solid #999;margin:0 0 10px 10px}
+  #imgView{max-width:90vw;max-height:80vh;border-radius:10px;display:block;margin:auto}
+  .toast{position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:12px 18px;border-radius:8px;opacity:0;transition:.3s;z-index:99}
+  .toast.show{opacity:1}
+  .small{font-size:12px;color:var(--mut)}
+  .cap{height:8px;background:#eee;border-radius:4px;overflow:hidden;min-width:80px}
+  .cap>div{height:100%;background:var(--ok)}
+  /* print card */
+  #printArea{display:none}
+  @media print{
+    body *{visibility:hidden}
+    #printArea,#printArea *{visibility:visible}
+    #printArea{display:block;position:absolute;left:0;top:0;width:100%;padding:20px}
+  }
+  .pcard h2{color:#000;border-bottom:2px solid #000;padding-bottom:6px}
+  .pcard table td{border:1px solid #999}
+  .pcard .sig{margin-top:60px;display:flex;justify-content:space-between}
+  .pcard .sig div{border-top:1px solid #000;width:45%;text-align:center;padding-top:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <h1 id="hdrTitle">💃 Escola de Dança</h1>
+</header>
+
+<nav id="nav">
+  <button data-tab="dash" class="active" data-i="tDash"></button>
+  <button data-tab="students" data-i="tStudents"></button>
+  <button data-tab="classes" data-i="tClasses"></button>
+  <button data-tab="payments" data-i="tPayments"></button>
+  <button data-tab="settings" data-i="tSettings"></button>
+</nav>
+
+<main>
+  <!-- DASHBOARD -->
+  <section class="tab active" id="tab-dash">
+    <div class="cards" id="kpis"></div>
+    <div class="grid2">
+      <div class="panel"><h3 data-i="overdueList"></h3><div id="overdueBox"></div></div>
+      <div class="panel"><h3 data-i="bdayList"></h3><div id="bdayBox"></div></div>
+    </div>
+    <div class="panel"><h3 data-i="classOcc"></h3><div id="occBox"></div></div>
+  </section>
+
+  <!-- STUDENTS -->
+  <section class="tab" id="tab-students">
+    <div class="toolbar">
+      <input type="search" id="sSearch" data-ph="phSearch">
+      <select id="sStatus"></select>
+      <select id="sClass"></select>
+      <button class="btn" id="btnNewStudent" data-i="newStudent"></button>
+    </div>
+    <div class="panel tablewrap"><table id="sTable"></table></div>
+  </section>
+
+  <!-- CLASSES -->
+  <section class="tab" id="tab-classes">
+    <div class="toolbar">
+      <input type="search" id="cSearch" data-ph="phSearch">
+      <button class="btn" id="btnNewClass" data-i="newClass"></button>
+    </div>
+    <div class="panel tablewrap"><table id="cTable"></table></div>
+  </section>
+
+  <!-- PAYMENTS -->
+  <section class="tab" id="tab-payments">
+    <div class="toolbar">
+      <label class="small" data-i="refMonth"></label>
+      <input type="month" id="pMonth">
+      <select id="pFilter"></select>
+      <input type="search" id="pSearch" data-ph="phSearch">
+    </div>
+    <div class="cards" id="pKpis"></div>
+    <div class="panel tablewrap"><table id="pTable"></table></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="tab" id="tab-settings">
+    <div class="panel">
+      <h3 data-i="schoolData"></h3>
+      <div class="form">
+        <label class="c2"><span data-i="schoolName"></span><input id="setName"></label>
+        <label><span data-i="defFee"></span><input id="setFee" type="number" step="0.01"></label>
+        <label><span data-i="defDue"></span><input id="setDue" type="number" min="1" max="28"></label>
+        <label class="c2"><span data-i="enrollFee"></span><input id="setEnroll" type="number" step="0.01"></label>
+        <label class="c2"><span data-i="modalities"></span><input id="setMods"></label>
+      </div>
+      <div class="mfoot"><button class="btn" id="btnSaveSet" data-i="save"></button></div>
+    </div>
+    <div class="panel">
+      <h3 data-i="backup"></h3>
+      <p class="small" data-i="backupInfo"></p>
+      <div class="toolbar">
+        <button class="btn" id="btnExpJson" data-i="expJson"></button>
+        <button class="sec btn" id="btnImpJson" data-i="impJson"></button>
+        <input type="file" id="fileImp" accept=".json" style="display:none">
+        <button class="sec btn" id="btnExpCsv" data-i="expCsv"></button>
+        <button class="sec btn" id="btnExpPay" data-i="expPayCsv"></button>
+        <button class="sec btn" id="btnSeed">🧪 Recarregar dados de teste</button>
+        <button class="danger btn" id="btnWipe" data-i="wipe"></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- STUDENT MODAL -->
+<div class="modal" id="mStudent"><div class="mbox">
+  <button class="close" data-close>&times;</button>
+  <h2 id="mStudentTitle"></h2>
+  <form id="fStudent" class="form" autocomplete="off">
+    <input type="hidden" name="id">
+    <div class="sect" data-i="secPersonal"></div>
+    <input type="hidden" name="photo">
+    <div class="photoRow">
+      <div class="photoBox" id="photoBox"></div>
+      <div class="photoBtns">
+        <button type="button" class="sec btn sm" id="btnPhotoFile">📁 Escolher foto</button>
+        <button type="button" class="sec btn sm" id="btnPhotoCam">📷 Usar câmera</button>
+        <button type="button" class="btn ok sm" id="btnPhotoSnap" style="display:none">✔ Capturar</button>
+        <button type="button" class="danger btn sm" id="btnPhotoDel">🗑 Remover foto</button>
+        <input type="file" id="photoFile" accept="image/*" style="display:none">
+        <span class="small">A foto é reduzida automaticamente (máx. 360px).</span>
+      </div>
+    </div>
+    <label class="c2"><span class="req" data-i="fName"></span><input name="name" required></label>
+    <label><span data-i="fCpf"></span><input name="cpf" maxlength="14" data-mask="cpf"></label>
+    <label><span class="req" data-i="fBirth"></span><input name="birth" type="date" required></label>
+    <label><span data-i="fGender"></span><select name="gender"></select></label>
+    <label><span class="req" data-i="fPhone"></span><input name="phone" required data-mask="phone" maxlength="15"></label>
+    <label class="c2"><span data-i="fEmail"></span><input name="email" type="email"></label>
+    <label><span data-i="fCep"></span><input name="cep" maxlength="9" data-mask="cep"></label>
+    <label class="c2"><span data-i="fAddress"></span><input name="address"></label>
+    <label><span data-i="fCity"></span><input name="city"></label>
+
+    <div class="sect" data-i="secGuardian"></div>
+    <label class="c2"><span data-i="fGuardian"></span><input name="guardian"></label>
+    <label><span data-i="fGuardianCpf"></span><input name="guardianCpf" maxlength="14" data-mask="cpf"></label>
+    <label><span data-i="fGuardianPhone"></span><input name="guardianPhone" data-mask="phone" maxlength="15"></label>
+    <label class="c2"><span data-i="fEmergency"></span><input name="emergency"></label>
+    <label class="c2"><span data-i="fEmergencyPhone"></span><input name="emergencyPhone" data-mask="phone" maxlength="15"></label>
+
+    <div class="sect" data-i="secHealth"></div>
+    <label class="c4"><span data-i="fHealth"></span><textarea name="health" rows="2"></textarea></label>
+    <label class="c2 chip" style="flex-direction:row"><input type="checkbox" name="imageAuth"> <span data-i="fImageAuth"></span></label>
+    <label class="c2 chip" style="flex-direction:row"><input type="checkbox" name="medCert"> <span data-i="fMedCert"></span></label>
+
+    <div class="sect" data-i="secEnroll"></div>
+    <div class="c4"><div class="small" data-i="fClasses" style="margin-bottom:6px;font-weight:600"></div><div class="chips" id="classChips"></div></div>
+    <label><span data-i="fPlan"></span><select name="plan"></select></label>
+    <label><span class="req" data-i="fFee"></span><input name="fee" type="number" step="0.01" required></label>
+    <label><span data-i="fDiscount"></span><input name="discount" type="number" step="0.01" min="0" max="100"></label>
+    <label><span class="req" data-i="fDue"></span><input name="dueDay" type="number" min="1" max="28" required></label>
+    <label><span class="req" data-i="fStart"></span><input name="start" type="date" required></label>
+    <label><span data-i="fStatus"></span><select name="status"></select></label>
+    <label class="c2"><span data-i="fHow"></span><select name="source"></select></label>
+    <label class="c4"><span data-i="fNotes"></span><textarea name="notes" rows="2"></textarea></label>
+  </form>
+  <div class="mfoot">
+    <button class="sec btn" data-close data-i="cancel"></button>
+    <button class="btn" id="btnSaveStudent" data-i="save"></button>
+  </div>
+</div></div>
+
+<!-- CLASS MODAL -->
+<div class="modal" id="mClass"><div class="mbox" style="max-width:640px">
+  <button class="close" data-close>&times;</button>
+  <h2 id="mClassTitle"></h2>
+  <form id="fClass" class="form" autocomplete="off">
+    <input type="hidden" name="id">
+    <label class="c2"><span class="req" data-i="cName"></span><input name="name" required></label>
+    <label class="c2"><span class="req" data-i="cMod"></span><select name="modality" required></select></label>
+    <label class="c2"><span data-i="cTeacher"></span><input name="teacher"></label>
+    <label><span data-i="cLevel"></span><select name="level"></select></label>
+    <label><span data-i="cAge"></span><input name="age" placeholder="6-10"></label>
+    <div class="c4"><div class="small" data-i="cDays" style="margin-bottom:6px;font-weight:600"></div><div class="chips" id="dayChips"></div></div>
+    <label><span class="req" data-i="cStart"></span><input name="tStart" type="time" required></label>
+    <label><span class="req" data-i="cEnd"></span><input name="tEnd" type="time" required></label>
+    <label><span data-i="cCap"></span><input name="capacity" type="number" min="1"></label>
+    <label><span data-i="cRoom"></span><input name="room"></label>
+    <label class="c2"><span data-i="cFee"></span><input name="fee" type="number" step="0.01"></label>
+    <label class="c2"><span data-i="fStatus"></span><select name="active"></select></label>
+  </form>
+  <div class="mfoot">
+    <button class="sec btn" data-close data-i="cancel"></button>
+    <button class="btn" id="btnSaveClass" data-i="save"></button>
+  </div>
+</div></div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal" id="mPay"><div class="mbox" style="max-width:520px">
+  <button class="close" data-close>&times;</button>
+  <h2 data-i="regPay"></h2>
+  <form id="fPay" class="form" autocomplete="off">
+    <input type="hidden" name="studentId"><input type="hidden" name="month">
+    <div class="c4"><b id="payWho"></b></div>
+    <label class="c2"><span class="req" data-i="pAmount"></span><input name="amount" type="number" step="0.01" required></label>
+    <label class="c2"><span class="req" data-i="pDate"></span><input name="date" type="date" required></label>
+    <label class="c2"><span data-i="pMethod"></span><select name="method"></select></label>
+    <label class="c2"><span data-i="fNotes"></span><input name="notes"></label>
+  </form>
+  <div class="mfoot">
+    <button class="sec btn" data-close data-i="cancel"></button>
+    <button class="btn ok" id="btnSavePay" data-i="confirm"></button>
+  </div>
+</div></div>
+
+<!-- HISTORY MODAL -->
+<div class="modal" id="mHist"><div class="mbox" style="max-width:640px">
+  <button class="close" data-close>&times;</button>
+  <h2 id="histTitle"></h2>
+  <div class="tablewrap"><table id="histTable"></table></div>
+</div></div>
+
+<!-- PHOTO VIEW MODAL -->
+<div class="modal" id="mImg"><div class="mbox" style="max-width:fit-content">
+  <button class="close" data-close>&times;</button>
+  <h2 id="imgTitle"></h2>
+  <img id="imgView" alt="">
+</div></div>
+
+<div id="printArea"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ========================= I18N ========================= */
+const I18N = {
+ pt:{
+  appTitle:"Escola de Dança – Cadastro de Clientes",
+  tDash:"📊 Painel",tStudents:"👥 Alunos",tClasses:"🩰 Turmas",tPayments:"💰 Mensalidades",tSettings:"⚙️ Configurações",
+  kActive:"Alunos ativos",kInactive:"Inativos / Trancados",kClasses:"Turmas ativas",kRevenue:"Recebido no mês",kExpected:"Previsto no mês",kOverdue:"Em atraso",kNew:"Novos no mês",
+  overdueList:"⚠️ Mensalidades em atraso (mês atual)",bdayList:"🎂 Aniversariantes do mês",classOcc:"Ocupação das turmas",
+  phSearch:"Buscar por nome, CPF, telefone, e-mail...",newStudent:"+ Novo aluno",newClass:"+ Nova turma",
+  allStatus:"Todos os status",allClasses:"Todas as turmas",
+  stActive:"Ativo",stInactive:"Inativo",stPaused:"Trancado",stTrial:"Aula experimental",
+  thName:"Nome",thAge:"Idade",thPhone:"Telefone",thClasses:"Turmas",thFee:"Mensalidade",thDue:"Venc.",thStatus:"Status",thActions:"Ações",
+  thClass:"Turma",thMod:"Modalidade",thTeacher:"Professor(a)",thSchedule:"Horário",thOcc:"Ocupação",thPaid:"Pago em",thAmount:"Valor",thMethod:"Forma",thMonth:"Mês",
+  edit:"Editar",del:"Excluir",print:"Ficha",hist:"Histórico",pay:"Pagar",undo:"Estornar",wa:"WhatsApp",
+  editStudent:"Editar aluno",addStudent:"Novo aluno",editClass:"Editar turma",addClass:"Nova turma",
+  secPersonal:"Dados pessoais",secGuardian:"Responsável e emergência",secHealth:"Saúde e autorizações",secEnroll:"Matrícula",
+  fName:"Nome completo",fCpf:"CPF",fBirth:"Data de nascimento",fGender:"Gênero",fPhone:"Telefone / WhatsApp",fEmail:"E-mail",fCep:"CEP",fAddress:"Endereço",fCity:"Cidade",
+  fGuardian:"Nome do responsável (se menor)",fGuardianCpf:"CPF do responsável",fGuardianPhone:"Tel. responsável",fEmergency:"Contato de emergência",fEmergencyPhone:"Tel. emergência",
+  fHealth:"Observações de saúde (alergias, lesões, medicamentos)",fImageAuth:"Autoriza uso de imagem",fMedCert:"Atestado médico entregue",
+  fClasses:"Turmas matriculadas",fPlan:"Plano",fFee:"Mensalidade (R$)",fDiscount:"Desconto (%)",fDue:"Dia de vencimento",fStart:"Data de matrícula",fStatus:"Status",fHow:"Como conheceu a escola",fNotes:"Observações",
+  gF:"Feminino",gM:"Masculino",gO:"Outro",gN:"Prefiro não informar",
+  plMonthly:"Mensal",plQuarterly:"Trimestral",plSemester:"Semestral",plAnnual:"Anual",
+  srcInsta:"Instagram",srcFriend:"Indicação",srcGoogle:"Google",srcWalk:"Passou na frente",srcEvent:"Evento / Apresentação",srcOther:"Outro",
+  cName:"Nome da turma",cMod:"Modalidade",cTeacher:"Professor(a)",cLevel:"Nível",cAge:"Faixa etária",cDays:"Dias da semana",cStart:"Início",cEnd:"Término",cCap:"Capacidade",cRoom:"Sala",cFee:"Mensalidade padrão (R$)",
+  lvBeg:"Iniciante",lvInt:"Intermediário",lvAdv:"Avançado",lvAll:"Livre",
+  yes:"Ativa",no:"Inativa",
+  days:["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"],
+  cancel:"Cancelar",save:"Salvar",confirm:"Confirmar pagamento",
+  regPay:"Registrar pagamento",pAmount:"Valor (R$)",pDate:"Data do pagamento",pMethod:"Forma de pagamento",
+  mPix:"PIX",mCash:"Dinheiro",mCredit:"Cartão de crédito",mDebit:"Cartão de débito",mTransfer:"Transferência",mBoleto:"Boleto",
+  refMonth:"Mês de referência:",pfAll:"Todos",pfPaid:"Pagos",pfOpen:"Em aberto",pfLate:"Em atraso",
+  psPaid:"Pago",psOpen:"Em aberto",psLate:"Atrasado",
+  schoolData:"Dados da escola",schoolName:"Nome da escola",defFee:"Mensalidade padrão (R$)",defDue:"Vencimento padrão",enrollFee:"Taxa de matrícula (R$)",modalities:"Modalidades (separadas por vírgula)",
+  backup:"Backup e exportação",backupInfo:"Os dados ficam salvos neste navegador (localStorage). Faça backups regulares em JSON para não perder informações.",
+  expJson:"⬇ Exportar backup (JSON)",impJson:"⬆ Importar backup",expCsv:"Exportar alunos (CSV)",expPayCsv:"Exportar pagamentos (CSV)",wipe:"Apagar todos os dados",
+  saved:"Salvo com sucesso!",deleted:"Excluído.",confirmDel:"Confirma a exclusão de",confirmWipe:"Isso apagará TODOS os dados. Digite APAGAR para confirmar:",wipeWord:"APAGAR",
+  imported:"Backup importado!",importErr:"Arquivo inválido.",dupCpf:"Já existe um aluno com este CPF.",invalidCpf:"CPF inválido.",minorGuardian:"Aluno menor de idade: informe o responsável.",
+  classFull:"Turma lotada:",none:"Nenhum registro.",noOverdue:"Nenhuma mensalidade em atraso 🎉",noBday:"Nenhum aniversariante este mês.",
+  years:"anos",students:"alunos",history:"Histórico de pagamentos",enrollForm:"Ficha de Matrícula",signStudent:"Assinatura do aluno / responsável",signSchool:"Escola",
+  hasClassStudents:"Esta turma possui alunos matriculados. Eles serão desvinculados. Continuar?",
+  waMsg:"Olá {n}! Lembramos que a mensalidade de {m} da {s} (R$ {v}) está em aberto. Qualquer dúvida estamos à disposição. 💃",
+  dueOn:"venc. dia",payUndo:"Estornar o pagamento?"
+ }
+};
+
+/* ========================= STATE ========================= */
+const KEY = "danceSchoolDB_v1";
+let db = load();
+const lang = "pt"; // idioma fixo: PT-BR
+const t = k => (I18N[lang][k] ?? k);
+
+/* ========================= DADOS DE TESTE (padrão) ========================= */
+function emptyDB(){
+  return {
+    settings:{name:"Escola de Dança",fee:180,due:10,enroll:50,
+      mods:"Ballet, Jazz, Hip Hop, Dança Contemporânea, Sapateado, Dança de Salão, Zumba, K-Pop, Ritmos"},
+    students:[], classes:[], payments:[]
+  };
+}
+function seedDB(){
+  let r=20251021; const rnd=()=>((r=(r*1103515245+12345)%2147483648)/2147483648);
+  const pick=a=>a[Math.floor(rnd()*a.length)];
+  const pad=n=>String(n).padStart(2,"0");
+  const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const now=new Date(); now.setHours(0,0,0,0);
+  const addM=(m,k)=>{const d=new Date(+m.slice(0,4),+m.slice(5,7)-1+k,1);return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;};
+  const cm=`${now.getFullYear()}-${pad(now.getMonth()+1)}`;
+  const cpf=()=>{const n=Array.from({length:9},()=>Math.floor(rnd()*10));
+    for(const len of [9,10]){let s=0;for(let i=0;i<len;i++)s+=n[i]*(len+1-i);let d=(s*10)%11;if(d===10)d=0;n.push(d);}
+    const x=n.join("");return `${x.slice(0,3)}.${x.slice(3,6)}.${x.slice(6,9)}-${x.slice(9)}`;};
+  const phone=()=>`(15) 9${Math.floor(8000+rnd()*1999)}-${Math.floor(1000+rnd()*8999)}`;
+  const cep=()=>`18${Math.floor(rnd()*90+10)}0-${Math.floor(rnd()*900+100)}`;
+  const C=[
+    ["c1","Baby Class","Ballet","Prof. Mariana Costa","beg","3-5",[2,4],"09:00","09:45",12,"Sala 1",150],
+    ["c2","Ballet Infantil","Ballet","Prof. Mariana Costa","beg","6-10",[1,3],"14:00","15:00",15,"Sala 1",170],
+    ["c3","Ballet Adulto","Ballet","Prof. Mariana Costa","int","16+",[2,4],"19:00","20:00",15,"Sala 1",190],
+    ["c4","Jazz Teen","Jazz","Prof. Lucas Almeida","int","11-15",[1,3],"16:00","17:00",15,"Sala 2",180],
+    ["c5","Hip Hop Kids","Hip Hop","Prof. Rafael Souza","beg","7-12",[2,4],"15:00","16:00",18,"Sala 2",170],
+    ["c6","Hip Hop Avançado","Hip Hop","Prof. Rafael Souza","adv","14+",[1,3,5],"18:00","19:00",16,"Sala 2",210],
+    ["c7","Contemporâneo","Dança Contemporânea","Prof. Juliana Ribeiro","int","15+",[5],"19:00","20:30",12,"Sala 1",200],
+    ["c8","Dança de Salão","Dança de Salão","Prof. Carlos e Ana Lima","all","18+",[2,4],"20:00","21:00",20,"Sala 3",180],
+    ["c9","Zumba Manhã","Zumba","Prof. Patrícia Gomes","all","16+",[1,3,5],"07:30","08:30",25,"Sala 3",130],
+    ["c10","K-Pop","K-Pop","Prof. Lucas Almeida","all","10+",[6],"10:00","11:30",15,"Sala 2",160],
+    ["c11","Sapateado (pausada)","Sapateado","Prof. Helena Duarte","beg","Livre",[6],"14:00","15:00",10,"Sala 1",170]
+  ];
+  const classes=C.map(c=>({id:c[0],name:c[1],modality:c[2],teacher:c[3],level:c[4],age:c[5],days:c[6],tStart:c[7],tEnd:c[8],capacity:String(c[9]),room:c[10],fee:String(c[11]),active:c[0]==="c11"?"0":"1"}));
+  const fee=id=>+classes.find(c=>c.id===id).fee;
+  // [nome, idade, gênero, turmas, status, mesesDesdeMatricula, desconto]
+  const S=[
+    ["Alice Martins Ferreira",4,"F",["c1"],"active",8,0],["Helena Rocha Santos",5,"F",["c1"],"active",3,0],
+    ["Laura Oliveira Prado",4,"F",["c1"],"trial",0,0],["Valentina Lopes Araújo",8,"F",["c2"],"active",14,0],
+    ["Sophia Cardoso Mendes",7,"F",["c2","c5"],"active",10,10],["Manuela Freitas Barros",9,"F",["c2"],"paused",12,0],
+    ["Isabela Teixeira Nunes",10,"F",["c2"],"active",5,0],["Beatriz Moreira Castro",28,"F",["c3"],"active",20,0],
+    ["Camila Vieira Pinto",34,"F",["c3","c7"],"active",16,15],["Fernanda Duarte Lima",41,"F",["c3"],"inactive",30,0],
+    ["Giovanna Ramos Silva",13,"F",["c4"],"active",9,0],["Lívia Correia Batista",14,"F",["c4","c10"],"active",7,10],
+    ["Pedro Henrique Alves",12,"M",["c4"],"trial",0,0],["Miguel Barbosa Rezende",9,"M",["c5"],"active",6,0],
+    ["Arthur Gomes Pereira",11,"M",["c5"],"active",11,0],["Davi Monteiro Faria",8,"M",["c5"],"inactive",18,0],
+    ["Gabriel Nascimento Reis",17,"M",["c6"],"active",13,0],["Lucas Fernandes Dias",19,"M",["c6"],"active",22,0],
+    ["Enzo Cavalcanti Moura",15,"M",["c6","c10"],"active",4,10],["Rafaela Antunes Leite",22,"F",["c6"],"paused",15,0],
+    ["Mariana Azevedo Porto",26,"F",["c7"],"active",9,0],["Juliana Campos Tavares",31,"F",["c7"],"trial",0,0],
+    ["Ricardo Mendes Lacerda",45,"M",["c8"],"active",24,20],["Patrícia Mendes Lacerda",43,"F",["c8"],"active",24,20],
+    ["Roberto Siqueira Neto",58,"M",["c8"],"active",6,0],["Cláudia Siqueira Neto",55,"F",["c8"],"paused",6,0],
+    ["Ana Paula Ribeiro",38,"F",["c9"],"active",12,0],["Sandra Regina Lopes",52,"F",["c9"],"active",30,0],
+    ["Marcos Vinícius Rocha",36,"M",["c9"],"inactive",10,0],["Débora Fontes Machado",47,"F",["c9","c8"],"active",2,10],
+    ["Yasmin Takahashi Sato",16,"F",["c10"],"active",5,0],["Larissa Kim Oliveira",12,"F",["c10","c4"],"active",3,0],
+    ["Bruno Nogueira Pacheco",24,"M",["c6"],"trial",0,0],["Tereza Cristina Vaz",63,"F",["c9"],"active",1,0],
+    ["Cecília Prado Bastos",6,"F",["c11"],"inactive",9,0]
+  ];
+  const ruas=["Rua XV de Novembro","Av. Gal. Osório","Rua Barão do Rio Branco","Av. Itavuvu","Rua Aparecida","Av. São Paulo","Rua Pedro de Toledo"];
+  const srcs=["insta","friend","google","walk","event","other"];
+  const health=["","","","Asma leve – traz bombinha","Alergia a amendoim","Lesão antiga no joelho direito","","Hipertensão controlada",""];
+  const students=S.map((x,i)=>{
+    const [name,ag,g,cls,status,ms,disc]=x;
+    const b=new Date(now.getFullYear()-ag,Math.floor(rnd()*12),1+Math.floor(rnd()*28));
+    if(i%9===0) b.setMonth(now.getMonth()); // alguns aniversariantes no mês
+    const st=new Date(now.getFullYear(),now.getMonth()-ms,1+Math.floor(rnd()*20));
+    const first=name.split(" ")[0], last=name.split(" ").slice(-1)[0];
+    const minor=ag<18;
+    const gName=minor?`${pick(["Fernanda","Ricardo","Juliana","Marcelo","Renata","Paulo","Cristina","André"])} ${name.split(" ").slice(1).join(" ")}`:"";
+    const f=cls.reduce((a,c)=>a+fee(c),0)-(cls.length>1?40:0);
+    return {id:"s"+(i+1),name,cpf:minor&&ag<12?"":cpf(),birth:iso(b),gender:g,phone:phone(),
+      email:minor?"":`${first}.${last}`.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")+"@email.com",
+      cep:cep(),address:`${pick(ruas)}, ${Math.floor(rnd()*1900+10)}`,city:"Sorocaba",
+      guardian:gName,guardianCpf:minor?cpf():"",guardianPhone:minor?phone():"",
+      emergency:minor?"":pick(["Mãe","Pai","Cônjuge","Irmã","Irmão"]),emergencyPhone:minor?"":phone(),
+      health:pick(health),imageAuth:rnd()>0.2,medCert:rnd()>0.3,classIds:cls,
+      plan:ms>12&&rnd()>0.5?pick(["quarterly","semester","annual"]):"monthly",
+      fee:String(f),discount:disc?String(disc):"",dueDay:String(pick([5,10,10,15,20])),start:iso(st),status,
+      source:pick(srcs),notes:status==="paused"?"Trancou por viagem/saúde – retorno previsto":status==="inactive"?"Cancelou matrícula":status==="trial"?"Aula experimental agendada":"",
+      photo:"",createdAt:st.toISOString()};
+  });
+  // pagamentos: últimos 4 meses; mês atual com mistura de pagos / abertos / atrasados
+  const payments=[]; let pid=1; const methods=["pix","pix","pix","cash","credit","debit","transfer","boleto"];
+  students.forEach((s,i)=>{
+    if(s.status==="trial") return;
+    for(let k=-4;k<=0;k++){
+      const m=addM(cm,k); if(s.start.slice(0,7)>m) continue;
+      if(s.status!=="active" && k>=-1) continue;            // trancados/inativos param de pagar
+      if(k===0 && i%3!==0) continue;                         // mês atual: ~1/3 pagos
+      if(k===-1 && i%7===2) continue;                        // alguns devem o mês anterior
+      const due=new Date(+m.slice(0,4),+m.slice(5,7)-1,+s.dueDay);
+      const pd=new Date(due); pd.setDate(due.getDate()-3+Math.floor(rnd()*6)); if(pd>now) pd.setTime(now.getTime());
+      const net=+(Number(s.fee)*(1-(Number(s.discount)||0)/100)).toFixed(2);
+      payments.push({id:"p"+(pid++),studentId:s.id,month:m,amount:net,date:iso(pd),method:pick(methods),notes:"",createdAt:pd.toISOString()});
+    }
+  });
+  const d=emptyDB(); d.classes=classes; d.students=students; d.payments=payments; return d;
+}
+function load(){
+  try{
+    const d = JSON.parse(localStorage.getItem(KEY));
+    if(d && d.students) return d;
+  }catch(e){}
+  return seedDB();   // primeiro uso: carrega dados de teste
+}
+function persist(){
+  try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }
+  catch(e){ alert("Espaço de armazenamento do navegador esgotado. Exporte um backup e remova fotos antigas."); return false; }
+}
+const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = v => (Number(v)||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const fmtDate = d => d ? d.split("-").reverse().join("/") : "";
+const today = () => new Date().toISOString().slice(0,10);
+const curMonth = () => today().slice(0,7);
+const monthLabel = m => { const [y,mo]=m.split("-"); return new Date(y,mo-1,1).toLocaleDateString("pt-BR",{month:"long",year:"numeric"}); };
+function age(b){ if(!b) return ""; const d=new Date(b+"T00:00"), n=new Date(); let a=n.getFullYear()-d.getFullYear(); if(n<new Date(n.getFullYear(),d.getMonth(),d.getDate())) a--; return a; }
+const initials = n => String(n||"?").trim().split(/\s+/).filter(Boolean).map((w,i,a)=>i===0||i===a.length-1?w[0]:"").join("").slice(0,2).toUpperCase();
+const avatar = s => s.photo
+  ? `<img class="avatar" src="${s.photo}" alt="" onclick="viewPhoto('${s.id}')" title="Ver foto">`
+  : `<span class="avatar" title="Sem foto">${esc(initials(s.name))}</span>`;
+function toast(msg){ const el=$("#toast"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2200); }
+const onlyDigits = s => String(s||"").replace(/\D/g,"");
+
+function validCPF(c){
+  c=onlyDigits(c); if(c.length!==11||/^(\d)\1+$/.test(c)) return false;
+  let s=0; for(let i=0;i<9;i++) s+=+c[i]*(10-i); let r=(s*10)%11; if(r===10) r=0; if(r!==+c[9]) return false;
+  s=0; for(let i=0;i<10;i++) s+=+c[i]*(11-i); r=(s*10)%11; if(r===10) r=0; return r===+c[10];
+}
+const STATUS = {active:["stActive","b-ok"],trial:["stTrial","b-pri"],paused:["stPaused","b-warn"],inactive:["stInactive","b-mut"]};
+const netFee = s => +(Number(s.fee||0)*(1-(Number(s.discount)||0)/100)).toFixed(2);
+const findPay = (sid,m) => db.payments.find(p=>p.studentId===sid && p.month===m);
+function payStatus(s,m){
+  if(findPay(s.id,m)) return "paid";
+  const due = new Date(+m.slice(0,4), +m.slice(5,7)-1, Number(s.dueDay)||10);
+  const now = new Date(); now.setHours(0,0,0,0);
+  return now>due ? "late" : "open";
+}
+const billable = (s,m) => (s.status==="active") && (!s.start || s.start.slice(0,7)<=m);
+const className = id => { const c=db.classes.find(x=>x.id===id); return c?c.name:""; };
+const enrolledCount = cid => db.students.filter(s=>(s.classIds||[]).includes(cid) && ["active","trial"].includes(s.status)).length;
+
+/* ========================= MASKS ========================= */
+document.addEventListener("input",e=>{
+  const m=e.target.dataset?.mask; if(!m) return;
+  let v=onlyDigits(e.target.value);
+  if(m==="cpf"){ v=v.slice(0,11).replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d)/,"$1.$2").replace(/(\d{3})(\d{1,2})$/,"$1-$2"); }
+  if(m==="phone"){ v=v.slice(0,11); v = v.length>10 ? v.replace(/(\d{2})(\d{5})(\d{0,4})/,"($1) $2-$3") : v.replace(/(\d{2})(\d{4})(\d{0,4})/,"($1) $2-$3").replace(/[-\s(]+$/,""); if(v.length<=2&&v) v="("+v; }
+  if(m==="cep"){ v=v.slice(0,8).replace(/(\d{5})(\d)/,"$1-$2"); }
+  e.target.value=v;
+});
+
+/* ========================= I18N APPLY ========================= */
+function opts(sel, list, val){ sel.innerHTML=list.map(([v,k])=>`<option value="${esc(v)}">${esc(k)}</option>`).join(""); if(val!==undefined) sel.value=val; }
+function applyLang(){
+  document.documentElement.lang = "pt-BR";
+  document.title = t("appTitle");
+  $("#hdrTitle").textContent = "💃 " + (db.settings.name || t("appTitle"));
+  $$("[data-i]").forEach(el=>el.textContent=t(el.dataset.i));
+  $$("[data-ph]").forEach(el=>el.placeholder=t(el.dataset.ph));
+  const f=$("#fStudent");
+  opts(f.gender,[["",""],["F",t("gF")],["M",t("gM")],["O",t("gO")],["N",t("gN")]]);
+  opts(f.plan,[["monthly",t("plMonthly")],["quarterly",t("plQuarterly")],["semester",t("plSemester")],["annual",t("plAnnual")]]);
+  opts(f.status,Object.entries(STATUS).map(([k,v])=>[k,t(v[0])]));
+  opts(f.source,[["",""],["insta",t("srcInsta")],["friend",t("srcFriend")],["google",t("srcGoogle")],["walk",t("srcWalk")],["event",t("srcEvent")],["other",t("srcOther")]]);
+  const c=$("#fClass");
+  opts(c.level,[["all",t("lvAll")],["beg",t("lvBeg")],["int",t("lvInt")],["adv",t("lvAdv")]]);
+  opts(c.active,[["1",t("yes")],["0",t("no")]]);
+  opts($("#fPay").method,[["pix",t("mPix")],["cash",t("mCash")],["credit",t("mCredit")],["debit",t("mDebit")],["transfer",t("mTransfer")],["boleto",t("mBoleto")]]);
+  const sv=$("#sStatus").value; opts($("#sStatus"),[["",t("allStatus")],...Object.entries(STATUS).map(([k,v])=>[k,t(v[0])])],sv);
+  const pv=$("#pFilter").value||""; opts($("#pFilter"),[["",t("pfAll")],["paid",t("pfPaid")],["open",t("pfOpen")],["late",t("pfLate")]],pv);
+  renderAll();
+}
+
+/* ========================= TABS ========================= */
+$$("#nav button").forEach(b=>b.onclick=()=>{
+  $$("#nav button").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+  $$(".tab").forEach(x=>x.classList.remove("active")); $("#tab-"+b.dataset.tab).classList.add("active");
+  renderAll();
+});
+$$("[data-close]").forEach(b=>b.onclick=()=>b.closest(".modal").classList.remove("open"));
+$$(".modal").forEach(m=>m.addEventListener("mousedown",e=>{ if(e.target===m) m.classList.remove("open"); }));
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $$(".modal.open").forEach(m=>m.classList.remove("open")); });
+
+/* ========================= RENDER ========================= */
+function renderAll(){ renderDash(); renderStudents(); renderClasses(); renderPayments(); renderSettings(); }
+
+function renderDash(){
+  const m=curMonth(), act=db.students.filter(s=>s.status==="active");
+  const bill=db.students.filter(s=>billable(s,m));
+  const expected=bill.reduce((a,s)=>a+netFee(s),0);
+  const received=db.payments.filter(p=>p.month===m).reduce((a,p)=>a+Number(p.amount||0),0);
+  const late=bill.filter(s=>payStatus(s,m)==="late");
+  const newM=db.students.filter(s=>(s.start||"").slice(0,7)===m).length;
+  $("#kpis").innerHTML=[
+    ["kActive",act.length,""],["kInactive",db.students.filter(s=>["inactive","paused"].includes(s.status)).length,"warn"],
+    ["kClasses",db.classes.filter(c=>c.active!=="0").length,""],["kNew",newM,"ok"],
+    ["kExpected",money(expected),""],["kRevenue",money(received),"ok"],["kOverdue",late.length,"bad"]
+  ].map(([k,v,c])=>`<div class="kpi ${c}"><div class="l">${t(k)}</div><div class="v">${v}</div></div>`).join("");
+
+  $("#overdueBox").innerHTML = late.length ? `<table><tr><th>${t("thName")}</th><th>${t("thPhone")}</th><th>${t("thFee")}</th><th>${t("thDue")}</th><th></th></tr>${
+    late.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.phone)}</td><td>${money(netFee(s))}</td><td>${s.dueDay}</td>
+    <td class="actions"><button class="btn ok sm" onclick="openPay('${s.id}','${m}')">${t("pay")}</button>
+    <button class="sec btn sm" onclick="whats('${s.id}','${m}')">${t("wa")}</button></td></tr>`).join("")}</table>` : `<div class="empty">${t("noOverdue")}</div>`;
+
+  const mo=new Date().getMonth()+1;
+  const bd=db.students.filter(s=>s.birth && +s.birth.slice(5,7)===mo && s.status!=="inactive").sort((a,b)=>a.birth.slice(8)-b.birth.slice(8));
+  $("#bdayBox").innerHTML = bd.length ? `<table>${bd.map(s=>`<tr><td><b>${s.birth.slice(8)}/${s.birth.slice(5,7)}</b></td><td>${esc(s.name)}</td><td>${age(s.birth)+ (+s.birth.slice(8)>new Date().getDate()?1:0)} ${t("years")}</td></tr>`).join("")}</table>` : `<div class="empty">${t("noBday")}</div>`;
+
+  const cl=db.classes.filter(c=>c.active!=="0");
+  $("#occBox").innerHTML = cl.length ? `<table><tr><th>${t("thClass")}</th><th>${t("thSchedule")}</th><th>${t("thTeacher")}</th><th>${t("thOcc")}</th></tr>${
+    cl.map(c=>{const n=enrolledCount(c.id),cap=+c.capacity||0,p=cap?Math.min(100,n/cap*100):0;
+      return `<tr><td>${esc(c.name)}</td><td>${schedule(c)}</td><td>${esc(c.teacher)}</td><td><div style="display:flex;gap:8px;align-items:center"><div class="cap"><div style="width:${p}%;background:${p>=100?"var(--bad)":p>=80?"var(--warn)":"var(--ok)"}"></div></div><span class="small">${n}${cap?"/"+cap:""}</span></div></td></tr>`}).join("")}</table>` : `<div class="empty">${t("none")}</div>`;
+}
+const schedule = c => `${(c.days||[]).map(d=>t("days")[d]).join(", ")} ${c.tStart||""}${c.tEnd?"–"+c.tEnd:""}`;
+
+function renderStudents(){
+  const cv=$("#sClass").value;
+  opts($("#sClass"),[["",t("allClasses")],...db.classes.map(c=>[c.id,c.name])],cv);
+  const q=$("#sSearch").value.trim().toLowerCase(), qd=onlyDigits(q), st=$("#sStatus").value, cf=$("#sClass").value;
+  const list=db.students.filter(s=>{
+    if(st && s.status!==st) return false;
+    if(cf && !(s.classIds||[]).includes(cf)) return false;
+    if(!q) return true;
+    return [s.name,s.email,s.guardian].some(x=>(x||"").toLowerCase().includes(q)) || (qd && [s.cpf,s.phone,s.guardianPhone].some(x=>onlyDigits(x).includes(qd)));
+  }).sort((a,b)=>a.name.localeCompare(b.name));
+  $("#sTable").innerHTML = `<tr><th>${t("thName")}</th><th>${t("thAge")}</th><th>${t("thPhone")}</th><th>${t("thClasses")}</th><th>${t("thFee")}</th><th>${t("thDue")}</th><th>${t("thStatus")}</th><th>${t("thActions")}</th></tr>` +
+  (list.length ? list.map(s=>{const [k,c]=STATUS[s.status]||STATUS.active;
+    return `<tr><td><div class="ncell">${avatar(s)}<div><b>${esc(s.name)}</b>${s.guardian?`<div class="small">${esc(s.guardian)}</div>`:""}</div></div></td><td>${age(s.birth)}</td><td>${esc(s.phone)}</td>
+    <td>${(s.classIds||[]).map(id=>`<span class="badge b-pri">${esc(className(id))}</span>`).join(" ")}</td>
+    <td>${money(netFee(s))}${Number(s.discount)?`<div class="small">-${s.discount}%</div>`:""}</td><td>${s.dueDay||""}</td>
+    <td><span class="badge ${c}">${t(k)}</span></td>
+    <td class="actions"><button class="sec btn sm" onclick="editStudent('${s.id}')">${t("edit")}</button>
+    <button class="sec btn sm" onclick="history_('${s.id}')">${t("hist")}</button>
+    <button class="sec btn sm" onclick="printStudent('${s.id}')">${t("print")}</button>
+    <button class="danger btn sm" onclick="delStudent('${s.id}')">${t("del")}</button></td></tr>`}).join("")
+  : `<tr><td colspan="8" class="empty">${t("none")}</td></tr>`);
+}
+
+function renderClasses(){
+  const q=$("#cSearch").value.trim().toLowerCase();
+  const list=db.classes.filter(c=>!q||[c.name,c.modality,c.teacher].some(x=>(x||"").toLowerCase().includes(q)));
+  $("#cTable").innerHTML = `<tr><th>${t("thClass")}</th><th>${t("thMod")}</th><th>${t("thTeacher")}</th><th>${t("thSchedule")}</th><th>${t("cRoom")}</th><th>${t("thOcc")}</th><th>${t("thStatus")}</th><th>${t("thActions")}</th></tr>` +
+  (list.length ? list.map(c=>`<tr><td><b>${esc(c.name)}</b><div class="small">${t({all:"lvAll",beg:"lvBeg",int:"lvInt",adv:"lvAdv"}[c.level]||"lvAll")}${c.age?" · "+esc(c.age):""}</div></td>
+    <td>${esc(c.modality)}</td><td>${esc(c.teacher)}</td><td>${schedule(c)}</td><td>${esc(c.room)}</td>
+    <td>${enrolledCount(c.id)}${c.capacity?"/"+c.capacity:""}</td>
+    <td><span class="badge ${c.active==="0"?"b-mut":"b-ok"}">${c.active==="0"?t("no"):t("yes")}</span></td>
+    <td class="actions"><button class="sec btn sm" onclick="editClass('${c.id}')">${t("edit")}</button>
+    <button class="danger btn sm" onclick="delClass('${c.id}')">${t("del")}</button></td></tr>`).join("")
+  : `<tr><td colspan="8" class="empty">${t("none")}</td></tr>`);
+}
+
+function renderPayments(){
+  if(!$("#pMonth").value) $("#pMonth").value=curMonth();
+  const m=$("#pMonth").value, f=$("#pFilter").value, q=$("#pSearch").value.trim().toLowerCase();
+  const paidIds=new Set(db.payments.filter(p=>p.month===m).map(p=>p.studentId));
+  let list=db.students.filter(s=>billable(s,m)||paidIds.has(s.id));
+  const rows=list.map(s=>({s,st:payStatus(s,m),p:findPay(s.id,m)}))
+    .filter(r=>(!f||r.st===f)&&(!q||r.s.name.toLowerCase().includes(q)))
+    .sort((a,b)=>({late:0,open:1,paid:2}[a.st]-{late:0,open:1,paid:2}[b.st])||a.s.name.localeCompare(b.s.name));
+  const all=list.map(s=>({s,st:payStatus(s,m),p:findPay(s.id,m)}));
+  const sum=k=>all.filter(r=>r.st===k).reduce((a,r)=>a+(r.p?Number(r.p.amount):netFee(r.s)),0);
+  $("#pKpis").innerHTML=[["psPaid",sum("paid"),"ok",all.filter(r=>r.st==="paid").length],["psOpen",sum("open"),"warn",all.filter(r=>r.st==="open").length],["psLate",sum("late"),"bad",all.filter(r=>r.st==="late").length]]
+    .map(([k,v,c,n])=>`<div class="kpi ${c}"><div class="l">${t(k)} (${n})</div><div class="v">${money(v)}</div></div>`).join("");
+  const B={paid:["psPaid","b-ok"],open:["psOpen","b-warn"],late:["psLate","b-bad"]};
+  $("#pTable").innerHTML=`<tr><th>${t("thName")}</th><th>${t("thPhone")}</th><th>${t("thDue")}</th><th>${t("thAmount")}</th><th>${t("thStatus")}</th><th>${t("thPaid")}</th><th>${t("thMethod")}</th><th>${t("thActions")}</th></tr>`+
+  (rows.length?rows.map(({s,st,p})=>`<tr><td>${esc(s.name)}</td><td>${esc(s.phone)}</td><td>${String(s.dueDay).padStart(2,"0")}/${m.slice(5)}</td>
+   <td>${money(p?p.amount:netFee(s))}</td><td><span class="badge ${B[st][1]}">${t(B[st][0])}</span></td>
+   <td>${p?fmtDate(p.date):""}</td><td>${p?t({pix:"mPix",cash:"mCash",credit:"mCredit",debit:"mDebit",transfer:"mTransfer",boleto:"mBoleto"}[p.method]):""}</td>
+   <td class="actions">${p?`<button class="sec btn sm" onclick="undoPay('${p.id}')">${t("undo")}</button>`
+     :`<button class="btn ok sm" onclick="openPay('${s.id}','${m}')">${t("pay")}</button><button class="sec btn sm" onclick="whats('${s.id}','${m}')">${t("wa")}</button>`}</td></tr>`).join("")
+  :`<tr><td colspan="8" class="empty">${t("none")}</td></tr>`);
+}
+
+function renderSettings(){
+  const s=db.settings; $("#setName").value=s.name||""; $("#setFee").value=s.fee||""; $("#setDue").value=s.due||""; $("#setEnroll").value=s.enroll||""; $("#setMods").value=s.mods||"";
+}
+
+["#sSearch","#sStatus","#sClass"].forEach(s=>$(s).addEventListener("input",renderStudents));
+$("#cSearch").addEventListener("input",renderClasses);
+["#pMonth","#pFilter","#pSearch"].forEach(s=>$(s).addEventListener("input",renderPayments));
+
+/* ========================= STUDENTS ========================= */
+function fillForm(form,obj){ [...form.elements].forEach(el=>{ if(!el.name) return; if(el.type==="checkbox") el.checked=!!obj[el.name]; else el.value=obj[el.name]??""; }); }
+function readForm(form){ const o={}; [...form.elements].forEach(el=>{ if(!el.name) return; o[el.name]= el.type==="checkbox"?el.checked:el.value.trim(); }); return o; }
+
+function buildClassChips(sel=[]){
+  $("#classChips").innerHTML = db.classes.filter(c=>c.active!=="0"||sel.includes(c.id)).map(c=>{
+    const on=sel.includes(c.id);
+    return `<label class="chip ${on?"on":""}"><input type="checkbox" value="${c.id}" ${on?"checked":""}> ${esc(c.name)} <span class="small">${schedule(c)} · ${enrolledCount(c.id)}${c.capacity?"/"+c.capacity:""}</span></label>`;
+  }).join("") || `<span class="small">${t("none")}</span>`;
+  $$("#classChips input").forEach(i=>i.onchange=()=>{
+    i.parentElement.classList.toggle("on",i.checked);
+    const f=$("#fStudent"); if(i.checked && !f.id.value){ const c=db.classes.find(x=>x.id===i.value); if(c&&c.fee&&!f.fee.dataset.touched) f.fee.value=c.fee; }
+  });
+}
+$("#fStudent").fee.addEventListener("input",e=>e.target.dataset.touched=1);
+
+/* ---------- FOTO ---------- */
+let camStream=null;
+function stopCam(){ if(camStream){ camStream.getTracks().forEach(tr=>tr.stop()); camStream=null; } $("#btnPhotoSnap").style.display="none"; $("#btnPhotoCam").style.display=""; }
+function setPhoto(data){
+  const f=$("#fStudent"); f.photo.value=data||"";
+  $("#photoBox").innerHTML = data ? `<img src="${data}" alt="">` : "Sem foto";
+  $("#btnPhotoDel").style.display = data ? "" : "none";
+}
+function resizeImage(src, max=360, q=0.8){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{ const r=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement("canvas"); c.width=Math.round(img.width*r); c.height=Math.round(img.height*r);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); res(c.toDataURL("image/jpeg",q)); };
+    img.onerror=rej; img.src=src;
+  });
+}
+$("#btnPhotoFile").onclick=()=>{ stopCam(); $("#photoFile").click(); };
+$("#photoFile").onchange=e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader(); r.onload=async()=>{ try{ setPhoto(await resizeImage(r.result)); }catch(_){ alert("Não foi possível ler a imagem."); } e.target.value=""; };
+  r.readAsDataURL(file);
+};
+$("#btnPhotoCam").onclick=async()=>{
+  if(!navigator.mediaDevices?.getUserMedia){ $("#photoFile").setAttribute("capture","user"); $("#photoFile").click(); $("#photoFile").removeAttribute("capture"); return; }
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});
+    $("#photoBox").innerHTML='<video autoplay playsinline muted></video>';
+    $("#photoBox video").srcObject=camStream;
+    $("#btnPhotoCam").style.display="none"; $("#btnPhotoSnap").style.display="";
+  }catch(err){ alert("Não foi possível acessar a câmera: "+err.message); }
+};
+$("#btnPhotoSnap").onclick=async()=>{
+  const v=$("#photoBox video"); if(!v||!v.videoWidth) return;
+  // recorte central 4:5 (formato 3x4 de ficha)
+  const h=v.videoHeight, w=Math.min(v.videoWidth, Math.round(h*0.8)), x=(v.videoWidth-w)/2;
+  const c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(v,x,0,w,h,0,0,w,h);
+  stopCam(); setPhoto(await resizeImage(c.toDataURL("image/jpeg",0.9)));
+};
+$("#btnPhotoDel").onclick=()=>{ stopCam(); setPhoto(""); };
+new MutationObserver(()=>{ if(!$("#mStudent").classList.contains("open")) stopCam(); }).observe($("#mStudent"),{attributes:true,attributeFilter:["class"]});
+window.viewPhoto=id=>{ const s=db.students.find(x=>x.id===id); if(!s?.photo) return; $("#imgTitle").textContent=s.name; $("#imgView").src=s.photo; $("#mImg").classList.add("open"); };
+
+$("#btnNewStudent").onclick=()=>{
+  const f=$("#fStudent"); f.reset(); delete f.fee.dataset.touched;
+  fillForm(f,{fee:db.settings.fee,dueDay:db.settings.due,start:today(),status:"active",plan:"monthly"});
+  buildClassChips([]); setPhoto(""); $("#mStudentTitle").textContent=t("addStudent"); $("#mStudent").classList.add("open"); f.name.focus();
+};
+window.editStudent=id=>{
+  const s=db.students.find(x=>x.id===id); const f=$("#fStudent"); f.reset(); f.fee.dataset.touched=1;
+  fillForm(f,s); setPhoto(s.photo||""); buildClassChips(s.classIds||[]); $("#mStudentTitle").textContent=t("editStudent"); $("#mStudent").classList.add("open");
+};
+$("#btnSaveStudent").onclick=()=>{
+  const f=$("#fStudent"); if(!f.reportValidity()) return;
+  const o=readForm(f); o.classIds=$$("#classChips input:checked").map(i=>i.value);
+  if(o.cpf && !validCPF(o.cpf)) return alert(t("invalidCpf"));
+  if(o.cpf && db.students.some(s=>s.id!==o.id && onlyDigits(s.cpf)===onlyDigits(o.cpf))) return alert(t("dupCpf"));
+  if(age(o.birth)<18 && !o.guardian) { f.guardian.focus(); return alert(t("minorGuardian")); }
+  const prev=o.id?db.students.find(s=>s.id===o.id):null;
+  for(const cid of o.classIds){ const c=db.classes.find(x=>x.id===cid); if(c&&c.capacity&&!(prev?.classIds||[]).includes(cid)&&enrolledCount(cid)>=+c.capacity){ if(!confirm(`${t("classFull")} ${c.name}. OK?`)) return; } }
+  if(prev) Object.assign(prev,o,{updatedAt:new Date().toISOString()});
+  else db.students.push({...o,id:uid(),createdAt:new Date().toISOString()});
+  if(!persist()){ db=load(); renderAll(); return; }
+  $("#mStudent").classList.remove("open"); toast(t("saved")); renderAll();
+};
+window.delStudent=id=>{
+  const s=db.students.find(x=>x.id===id); if(!confirm(`${t("confirmDel")} "${s.name}"?`)) return;
+  db.students=db.students.filter(x=>x.id!==id); db.payments=db.payments.filter(p=>p.studentId!==id);
+  persist(); toast(t("deleted")); renderAll();
+};
+
+/* ========================= CLASSES ========================= */
+function buildDayChips(sel=[]){
+  $("#dayChips").innerHTML=t("days").map((d,i)=>`<label class="chip ${sel.includes(i)?"on":""}"><input type="checkbox" value="${i}" ${sel.includes(i)?"checked":""}> ${d}</label>`).join("");
+  $$("#dayChips input").forEach(i=>i.onchange=()=>i.parentElement.classList.toggle("on",i.checked));
+}
+function modOpts(v){ const mods=(db.settings.mods||"").split(",").map(x=>x.trim()).filter(Boolean); if(v&&!mods.includes(v)) mods.push(v); opts($("#fClass").modality,mods.map(m=>[m,m]),v); }
+$("#btnNewClass").onclick=()=>{
+  const f=$("#fClass"); f.reset(); modOpts(); fillForm(f,{active:"1",level:"all",fee:db.settings.fee,capacity:15});
+  buildDayChips([]); $("#mClassTitle").textContent=t("addClass"); $("#mClass").classList.add("open"); f.name.focus();
+};
+window.editClass=id=>{
+  const c=db.classes.find(x=>x.id===id); const f=$("#fClass"); f.reset(); modOpts(c.modality); fillForm(f,c);
+  buildDayChips(c.days||[]); $("#mClassTitle").textContent=t("editClass"); $("#mClass").classList.add("open");
+};
+$("#btnSaveClass").onclick=()=>{
+  const f=$("#fClass"); if(!f.reportValidity()) return;
+  const o=readForm(f); o.days=$$("#dayChips input:checked").map(i=>+i.value);
+  const prev=o.id?db.classes.find(c=>c.id===o.id):null;
+  if(prev) Object.assign(prev,o); else db.classes.push({...o,id:uid()});
+  persist(); $("#mClass").classList.remove("open"); toast(t("saved")); renderAll();
+};
+window.delClass=id=>{
+  const c=db.classes.find(x=>x.id===id);
+  if(enrolledCount(id)&&!confirm(t("hasClassStudents"))) return;
+  if(!confirm(`${t("confirmDel")} "${c.name}"?`)) return;
+  db.classes=db.classes.filter(x=>x.id!==id); db.students.forEach(s=>s.classIds=(s.classIds||[]).filter(x=>x!==id));
+  persist(); toast(t("deleted")); renderAll();
+};
+
+/* ========================= PAYMENTS ========================= */
+window.openPay=(sid,m)=>{
+  const s=db.students.find(x=>x.id===sid), f=$("#fPay"); f.reset();
+  fillForm(f,{studentId:sid,month:m,amount:netFee(s),date:today(),method:"pix"});
+  $("#payWho").textContent=`${s.name} — ${monthLabel(m)}`; $("#mPay").classList.add("open");
+};
+$("#btnSavePay").onclick=()=>{
+  const f=$("#fPay"); if(!f.reportValidity()) return; const o=readForm(f);
+  if(findPay(o.studentId,o.month)) return;
+  db.payments.push({...o,amount:Number(o.amount),id:uid(),createdAt:new Date().toISOString()});
+  persist(); $("#mPay").classList.remove("open"); toast(t("saved")); renderAll();
+};
+window.undoPay=id=>{ if(!confirm(t("payUndo"))) return; db.payments=db.payments.filter(p=>p.id!==id); persist(); renderAll(); };
+window.whats=(sid,m)=>{
+  const s=db.students.find(x=>x.id===sid); let ph=onlyDigits(s.guardianPhone||s.phone); if(!ph) return;
+  if(!ph.startsWith("55")) ph="55"+ph;
+  const msg=t("waMsg").replace("{n}",(s.guardian||s.name).split(" ")[0]).replace("{m}",monthLabel(m)).replace("{s}",db.settings.name).replace("{v}",netFee(s).toFixed(2).replace(".",","));
+  window.open(`https://wa.me/${ph}?text=${encodeURIComponent(msg)}`,"_blank");
+};
+window.history_=sid=>{
+  const s=db.students.find(x=>x.id===sid);
+  const ps=db.payments.filter(p=>p.studentId===sid).sort((a,b)=>b.month.localeCompare(a.month));
+  $("#histTitle").textContent=`${t("history")} — ${s.name}`;
+  $("#histTable").innerHTML=`<tr><th>${t("thMonth")}</th><th>${t("thAmount")}</th><th>${t("thPaid")}</th><th>${t("thMethod")}</th></tr>`+
+   (ps.length?ps.map(p=>`<tr><td>${monthLabel(p.month)}</td><td>${money(p.amount)}</td><td>${fmtDate(p.date)}</td><td>${t({pix:"mPix",cash:"mCash",credit:"mCredit",debit:"mDebit",transfer:"mTransfer",boleto:"mBoleto"}[p.method])}</td></tr>`).join(""):`<tr><td colspan="4" class="empty">${t("none")}</td></tr>`);
+  $("#mHist").classList.add("open");
+};
+
+/* ========================= PRINT ========================= */
+window.printStudent=id=>{
+  const s=db.students.find(x=>x.id===id), F=I18N[lang];
+  const row=(a,b,c,d)=>`<tr><td><b>${a}</b></td><td>${esc(b)}</td>${c!==undefined?`<td><b>${c}</b></td><td>${esc(d)}</td>`:`<td colspan="2"></td>`}</tr>`;
+  $("#printArea").innerHTML=`<div class="pcard"><h2>${esc(db.settings.name)} — ${F.enrollForm}</h2>${s.photo?`<img class="pphoto" src="${s.photo}" alt="">`:""}
+  <table>${row(F.fName,s.name,F.fCpf,s.cpf)}${row(F.fBirth,fmtDate(s.birth)+" ("+age(s.birth)+" "+F.years+")",F.fPhone,s.phone)}
+  ${row(F.fEmail,s.email,F.fCep,s.cep)}${row(F.fAddress,s.address,F.fCity,s.city)}
+  ${row(F.fGuardian,s.guardian,F.fGuardianCpf,s.guardianCpf)}${row(F.fGuardianPhone,s.guardianPhone,F.fEmergency,(s.emergency||"")+" "+(s.emergencyPhone||""))}
+  ${row(F.fHealth,s.health)}${row(F.fImageAuth,s.imageAuth?"✔":"✘",F.fMedCert,s.medCert?"✔":"✘")}
+  ${row(F.fClasses,(s.classIds||[]).map(id=>{const c=db.classes.find(x=>x.id===id);return c?`${c.name} (${schedule(c)})`:""}).join("; "))}
+  ${row(F.fFee,money(netFee(s)),F.fDue,s.dueDay)}${row(F.fStart,fmtDate(s.start),F.fPlan,F[{monthly:"plMonthly",quarterly:"plQuarterly",semester:"plSemester",annual:"plAnnual"}[s.plan]])}
+  ${row(F.fNotes,s.notes)}</table>
+  <div class="sig"><div>${F.signStudent}</div><div>${esc(db.settings.name)}</div></div>
+  <p class="small" style="margin-top:30px">${new Date().toLocaleDateString("pt-BR")}</p></div>`;
+  window.print();
+};
+
+/* ========================= SETTINGS / BACKUP ========================= */
+$("#btnSaveSet").onclick=()=>{
+  Object.assign(db.settings,{name:$("#setName").value.trim(),fee:Number($("#setFee").value)||0,due:Number($("#setDue").value)||10,enroll:Number($("#setEnroll").value)||0,mods:$("#setMods").value});
+  persist(); applyLang(); toast(t("saved"));
+};
+function download(name,content,type){ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+const stamp=()=>new Date().toISOString().slice(0,16).replace(/[-:T]/g,"");
+$("#btnExpJson").onclick=()=>download(`backup_escola_danca_${stamp()}.json`,JSON.stringify(db,null,2),"application/json");
+$("#btnImpJson").onclick=()=>$("#fileImp").click();
+$("#fileImp").onchange=e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!d.students||!d.classes) throw 0; d.payments=d.payments||[]; db=d; persist(); applyLang(); toast(t("imported")); }catch(_){ alert(t("importErr")); } e.target.value=""; };
+  r.readAsText(file);
+};
+function csv(rows){ return "\uFEFF"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n"); }
+$("#btnExpCsv").onclick=()=>{
+  const F=I18N[lang];
+  const rows=[[F.fName,F.fCpf,F.fBirth,F.thAge,F.fPhone,F.fEmail,F.fAddress,F.fCity,F.fGuardian,F.fGuardianPhone,F.fClasses,F.fFee,F.fDiscount,F.fDue,F.fStart,F.fStatus,F.fNotes]];
+  db.students.forEach(s=>rows.push([s.name,s.cpf,fmtDate(s.birth),age(s.birth),s.phone,s.email,s.address,s.city,s.guardian,s.guardianPhone,(s.classIds||[]).map(className).join(", "),netFee(s).toFixed(2).replace(".",","),s.discount,s.dueDay,fmtDate(s.start),F[(STATUS[s.status]||STATUS.active)[0]],s.notes]));
+  download(`alunos_${stamp()}.csv`,csv(rows),"text/csv");
+};
+$("#btnExpPay").onclick=()=>{
+  const F=I18N[lang]; const rows=[[F.thName,F.thMonth,F.thAmount,F.thPaid,F.thMethod,F.fNotes]];
+  db.payments.forEach(p=>{const s=db.students.find(x=>x.id===p.studentId); rows.push([s?s.name:"?",p.month,Number(p.amount).toFixed(2).replace(".",","),fmtDate(p.date),p.method,p.notes]);});
+  download(`pagamentos_${stamp()}.csv`,csv(rows),"text/csv");
+};
+$("#btnSeed").onclick=()=>{
+  if(!confirm("Substituir os dados atuais pelos dados de teste?")) return;
+  db=seedDB(); persist(); applyLang(); toast("Dados de teste carregados!");
+};
+$("#btnWipe").onclick=()=>{
+  if(prompt(t("confirmWipe"))!==t("wipeWord")) return;
+  db=emptyDB(); persist(); applyLang(); toast(t("deleted"));
+};
+
+/* ========================= INIT ========================= */
+applyLang();
+</script>
+</body>
+</html>
